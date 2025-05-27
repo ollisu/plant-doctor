@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 
 const DiagnosesScreen = () => {
-    const [diagnoses, setDiagnoses] = useState([{diagnosis: 'Fungal Infection', location: {lat: 37.7749, lng: -122.4194}}]);
+    const [diagnoses, setDiagnoses] = useState([{diagnosis: 'Fungal Infection', location: {lat: 37.7749, lng: -122.4194}},{diagnosis: 'Tomateo late stage blight', location: {lat: 37.7749, lng: -124.4194}}]);
     const [filter, setFilter] = useState('');
 
     const filtered = diagnoses.filter(d => d.diagnosis.toLowerCase().includes(filter.toLowerCase()));

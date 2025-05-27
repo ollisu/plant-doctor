@@ -19,6 +19,8 @@ const HomeScreen = () => {
       <Text style={styles.title}>🌿 Welcome to PlantDoc 🌿</Text>
       <Text style={styles.subtitle}>Identify plant diseases and track your diagnoses</Text>
       <View style={{ margin: 20 }} />
+      <Button title="Diagnose a Plant" onPress={() => router.push('/diagnose')} color="#66bb6a" />
+      <View style={{ margin: 10 }} />
       <Button title="Go to Diagnoses List" onPress={() => router.push('/diagnoses')} color="#4caf50" />
       <View style={{ margin: 10 }} />
     </Animated.View>
