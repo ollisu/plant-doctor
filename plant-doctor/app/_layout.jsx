@@ -1,8 +1,8 @@
-import { Stack } from "expo-router";
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { Stack } from 'expo-router';
+
+
 const RootLayout = () => {
-  return <Stack />;
+  return <Stack initialRouteName="index" />;;
 }
 
 export default RootLayout;
