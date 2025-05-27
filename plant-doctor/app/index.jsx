@@ -1,6 +1,6 @@
-import { Text, View, Button, StyleSheet, Animated, useAnimatedValue } from "react-native";
-import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
+import { Animated, Button, StyleSheet, Text, useAnimatedValue, View, } from "react-native";
 
 const HomeScreen = () => {
   const fadeAnim = useAnimatedValue(0);
@@ -19,6 +19,7 @@ const HomeScreen = () => {
       <Text style={styles.title}>🌿 Welcome to PlantDoc 🌿</Text>
       <Text style={styles.subtitle}>Identify plant diseases and track your diagnoses</Text>
       <View style={{ margin: 20 }} />
+      <Button title="Go to Diagnoses List" onPress={() => router.push('/diagnoses')} color="#4caf50" />
       <View style={{ margin: 10 }} />
     </Animated.View>
   );
