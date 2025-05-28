@@ -2,7 +2,7 @@ import * as imagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Location from 'expo-location';
 import { useState } from 'react';
-import { Button, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, Alert, ActivityIndicator, Text } from 'react-native';
+import { Button, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, Alert, ActivityIndicator, Text, Modal } from 'react-native';
 import axios from 'axios'
 import { Buffer } from 'buffer';
 
@@ -13,6 +13,8 @@ const DiagnosesScreen = () => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [note, setNote] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+
 
     const pickImage = async (useCamera = false) => {
         let permission = useCamera
@@ -38,6 +40,7 @@ const DiagnosesScreen = () => {
         const HUGGINGFACE_API_TOKEN = process.env.EXPO_PUBLIC_HUGGINFACE_TOKEN
         try{
             setLoading(true);
+            const result = {}
 
             const locPermission = await Location.requestForegroundPermissionsAsync();
             if (!locPermission.granted) throw new Error('Location permission is required for diagnosis.');
@@ -59,10 +62,21 @@ const DiagnosesScreen = () => {
                 }       
             );
 
-            setResult(response.data);
-            Alert.alert('Diagnosis result:', JSON.stringify(response.data[0], null, 2));
-            Alert.alert('Location:', `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`);
+            result.diagnosis = response.data[0].label;
+            result.confidence = response.data[0].score;
+            result.location = {
+                latitude: location.coords.latitude
+                ,longitude: location.coords.longitude
+            };
 
+            if(note) {
+                result.note = note;
+            }else {
+                result.note = 'No additional notes provided.';
+            }
+
+            setResult(result);
+            setModalVisible(true);
 
 
         }catch (error) {
@@ -71,9 +85,26 @@ const DiagnosesScreen = () => {
         }finally {
             setLoading(false);
         }
-        
 
 
+    }
+
+    const saveResult = () => {
+        if (!result) {
+            Alert.alert('No result to save');
+            return;
+        }
+
+        // Here you would typically save the result to a database or local storage.
+        // For demonstration, we will just log it.
+        console.log('Saving result:', { image, note, result });
+        Alert.alert('Result saved successfully!');
+        setModalVisible(false);
+    }
+
+    const cancelSave = () => {
+        setModalVisible(false);
+        setResult(null);
     }
 
     return (
@@ -104,19 +135,60 @@ const DiagnosesScreen = () => {
                         <ActivityIndicator size="large" color="#4caf50" />
                         <View style={{ margin: 20 }} />
                     </View>)}
-                    
-
                 </View>
             </ScrollView>
+            <SaveResultModal
+                visible={modalVisible}
+                result={result}
+                onSave={saveResult}
+                onCancel={cancelSave}/>
         </KeyboardAvoidingView>
+        
     )
 }
+
+const SaveResultModal = ({ visible, result, onSave, onCancel }) => (
+  <Modal visible={visible} animationType="slide" transparent>
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        {result ? (
+          <>
+            <Text style={styles.title}>Review Result</Text>
+            <Text style={styles.resultText}>{result.diagnosis}</Text>
+            <Text style={styles.resultText}>{`Result confidence: ${(result.confidence * 100).toFixed(2) + '%'}`}</Text>
+            <Text style={styles.resultText}>{result.note}</Text>
+            <Text style={styles.resultText}>
+              {`Latitude: ${result.location.latitude}`}
+            </Text>
+            <Text style={styles.resultText}>
+              {`Longitude: ${result.location.longitude}`}
+            </Text>
+            <View style={styles.buttonRow}>
+              <Button title="Cancel" onPress={onCancel} color="#f44336" />
+              <Button title="Save" onPress={onSave} color="#4caf50" />
+            </View>
+          </>
+        ) : (
+          <Text style={styles.resultText}>No result to display.</Text>
+        )}
+      </View>
+    </View>
+  </Modal>
+);
+
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f1f8e9', padding: 20 },
   image: { width: 300, height: 300, resizeMode: 'contain', marginVertical: 20 },
   result: { marginTop: 20, backgroundColor: '#fff', padding: 10, borderRadius: 8, color: '#1b5e20' },
   input: { backgroundColor: 'white', padding: 10, marginTop: 10, width: '100%', borderRadius: 8 },
+  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContent: { width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center' },
+  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, color: '#1b5e20' },
+  resultText: { fontSize: 16, marginBottom: 20, color: '#1b5e20' },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
+
 });
 
 export default DiagnosesScreen;
