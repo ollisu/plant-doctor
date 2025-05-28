@@ -2,7 +2,7 @@ import * as imagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Location from 'expo-location';
 import { useState } from 'react';
-import { Button, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, Alert } from 'react-native';
+import { Button, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, Alert, ActivityIndicator, Text } from 'react-native';
 import axios from 'axios'
 import { Buffer } from 'buffer';
 
@@ -60,7 +60,8 @@ const DiagnosesScreen = () => {
             );
 
             setResult(response.data);
-            Alert.alert('Diagnosis Result', JSON.stringify(response.data, null, 2));
+            Alert.alert('Diagnosis result:', JSON.stringify(response.data[0], null, 2));
+            Alert.alert('Location:', `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`);
 
 
 
@@ -97,6 +98,13 @@ const DiagnosesScreen = () => {
                     {image && <Image source={{ uri: image }} style={styles.image} />}
                     <View style={{ margin: 10 }} />
                     {image && !loading && <Button title="Diagnose" onPress={diagnose} color="#4caf50" />}
+                    {loading && (<View style={{ margin: 20 }}>
+                        <Text style={{ color: '#4caf50' }}>{"Diagnosing...this might take a moment."}</Text>
+                        <View style={{ margin: 10 }} />
+                        <ActivityIndicator size="large" color="#4caf50" />
+                        <View style={{ margin: 20 }} />
+                    </View>)}
+                    
 
                 </View>
             </ScrollView>
