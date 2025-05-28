@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { Button, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, Alert, ActivityIndicator, Text, Modal } from 'react-native';
 import axios from 'axios'
 import { Buffer } from 'buffer';
+import { collection, addDoc, serverTimestamp  } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
+
 
 
 
@@ -36,6 +39,7 @@ const DiagnosesScreen = () => {
     }
 
     const diagnose = async () => {
+
         const HUGGINGFACE_MODEL = process.env.EXPO_PUBLIC_HUGGINGFACE_MODEL
         const HUGGINGFACE_API_TOKEN = process.env.EXPO_PUBLIC_HUGGINFACE_TOKEN
         try{
@@ -89,17 +93,29 @@ const DiagnosesScreen = () => {
 
     }
 
-    const saveResult = () => {
+    const saveResult = async () => {
         if (!result) {
             Alert.alert('No result to save');
             return;
         }
-
-        // Here you would typically save the result to a database or local storage.
-        // For demonstration, we will just log it.
-        console.log('Saving result:', { image, note, result });
-        Alert.alert('Result saved successfully!');
-        setModalVisible(false);
+        // Add a timestamp to the result UTC.
+        const resultWithTimestamp = {
+            ...result, createdAt: serverTimestamp(),      
+        }   
+        try {
+            await addDoc(collection(db, 'diagnoses'), resultWithTimestamp);
+            Alert.alert('Result saved successfully!');
+        }
+        catch (error) {
+            console.error('Error saving result:', error);
+            Alert.alert('Failed to save result');
+        }
+        finally {
+            setModalVisible(false);
+            setResult(null);
+            setImage(null);
+            setNote('');
+        }
     }
 
     const cancelSave = () => {
