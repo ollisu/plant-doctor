@@ -1,6 +1,6 @@
 import  { useState } from 'react'
 import { useRouter } from 'expo-router';
-import { auth } from '../firebaseConfig'; // Adjust the import based on your Firebase config file
+import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 
@@ -13,7 +13,7 @@ const LoginScreen = () => {
     const handleLogin = async () => {
         try {
             await signInWithEmailAndPassword(auth, username, password);
-            router.push('/index');
+            router.push('/');
         } catch (error) {
             Alert.alert('Login Failed', error.message);
         }
@@ -36,11 +36,13 @@ const LoginScreen = () => {
                 onChangeText={setPassword}
                 secureTextEntry
             />
+            <View style={{ margin: 10 }} />
             <Button title="Login" onPress={handleLogin} color="#4caf50" />
+                        <View style={{ margin: 10 }} />
             <Button title="Sign in with Google" onPress={() => console.log('navigate to google')} color="#4caf50" />
             <View style={{ margin: 10 }} />
-            <Text style={styles.registerText} onPress={() => console.log('Navigate to Register')}>
-                Don't have an account? Register
+            <Text style={styles.registerText} onPress={() => router.push('/register')}>
+                'Don't have an account? Register here!'
             </Text>
         </View>
 

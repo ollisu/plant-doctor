@@ -1,6 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Animated, Button, StyleSheet, Text, useAnimatedValue, View, } from "react-native";
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
+
 
 const HomeScreen = () => {
   const fadeAnim = useAnimatedValue(0);
@@ -13,6 +16,15 @@ const HomeScreen = () => {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  }
   
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
@@ -22,7 +34,8 @@ const HomeScreen = () => {
       <Button title="Diagnose a Plant" onPress={() => router.push('/diagnose')} color="#66bb6a" />
       <View style={{ margin: 10 }} />
       <Button title="Go to Diagnoses List" onPress={() => router.push('/diagnoses')} color="#4caf50" />
-      <View style={{ margin: 10 }} />
+      <View style={{ margin: 30 }} />
+      <Button title="Logout" onPress={handleLogout} color="#4caf50" />
     </Animated.View>
   );
 }
