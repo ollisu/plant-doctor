@@ -1,4 +1,3 @@
-# plant-doctor
 # PlantDoc 🌿
 
 PlantDoc is a cross-platform mobile app built with **React Native**, **Expo Router**, and **Firebase** that helps users identify plant diseases using AI. It leverages a Hugging Face model for diagnosis, stores results with location data, and allows users to review past diagnoses on a map or in a history list.
@@ -13,7 +12,7 @@ PlantDoc is a cross-platform mobile app built with **React Native**, **Expo Rout
 * 🗒️ **Optional notes** with each submission
 * 🧾 **View history** of past diagnoses
 * 🗺️ **Map view** of diagnosis locations
-* 🔐 **Firebase Authentication** (Email + Password, Google optional)
+* 🔐 **Firebase Authentication** (Email + Password)
 * ☁️ **Firebase Firestore** for storing user data
 
 ---
@@ -32,7 +31,7 @@ PlantDoc is a cross-platform mobile app built with **React Native**, **Expo Rout
 
 ```bash
 npm install
-npx expo start
+npm start
 ```
 
 Ensure you have:
@@ -83,10 +82,9 @@ export const db = getFirestore(app);
 Tested on:
 
 * Android (Expo Go)
-* iOS Simulator
-* Web (limited camera support)
 
 ---
+A few sample pictures can be found in the /assets/images folder.
 
 ## 📁 Folder Structure
 
@@ -99,9 +97,9 @@ app/
   login.js             # Login screen
   register.js          # Registration screen
   _layout.js           # Expo Router layout
-services/
+
   firebaseConfig.js    # Firebase setup
-.env                   # Env vars for Hugging Face
+  .env                   # Env vars for Hugging Face
 ```
 
 ---
