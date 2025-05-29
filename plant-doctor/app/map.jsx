@@ -57,13 +57,10 @@ const MapScreen = () => {
     }}
 
 
-    useEffect(() => {
-        getLocation();
-        fetchDiagnoses();
-    }, []);
+  useEffect(() => {
+    const init = async () => {
+      await fetchDiagnoses();
 
-    // To view a single diagnosis location passed from another screen
-    useEffect(() => {
       if (diagnosisLocation) {
         try {
           const location = JSON.parse(diagnosisLocation);
@@ -74,54 +71,57 @@ const MapScreen = () => {
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             });
-            return;
+            setLoading(false);
+            return; // skip device location fetch
           }
         } catch (error) {
           console.warn('Failed to parse diagnosisLocation:', error);
         }
       }
 
-      // Default region fallback
-      setRegion(DEFAULT_REGION);
-    }, [diagnosisLocation]);
+      // No diagnosisLocation or parse failed, get device location
+      await getLocation();
+      setLoading(false);
+    };
 
-      return (
-        <View style={styles.container}>
-          {loading ? (
-            <ActivityIndicator size="large" color="#007AFF" style={styles.spinner} />
-          ) : (
-            <>
-              <MapView
-                style={styles.map}
-                region={region}
-                showsUserLocation={true}
-              >
-                {diagnoses.map((diag, index) => (
-                  <Marker
-                    key={index}
-                    coordinate={{
-                      latitude: diag.location?.latitude,
-                      longitude: diag.location?.longitude,
-                    }}
-                    onPress={() => setSelectedDiagnosis(diag)}
-                  />
-                ))}
-              </MapView>
+    init();
+  }, [diagnosisLocation]);
 
-              <View style={styles.buttonContainer}>
-                <Button title="Refresh Location" onPress={getLocation} color="#007AFF" />
-              </View>
+  if (loading || !region) {
+    return (
+      <View style={styles.spinner}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
 
-              {/* Diagnosis info modal */}
-              <DiagnosisModal
-                visible={!!selectedDiagnosis}
-                diagnosis={selectedDiagnosis}
-                onClose={() => setSelectedDiagnosis(null)}
-              />
-            </>
-          )}
-        </View>
-      );
+  return (
+    <View style={styles.container}>
+      <MapView style={styles.map} region={region} showsUserLocation={true}>
+        {diagnoses.map((diag, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: diag.location?.latitude,
+              longitude: diag.location?.longitude,
+            }}
+            onPress={() => setSelectedDiagnosis(diag)}
+          />
+        ))}
+      </MapView>
+
+      <View style={styles.buttonContainer}>
+        <Button title="Refresh Location" onPress={getLocation} color="#007AFF" />
+      </View>
+
+      <DiagnosisModal
+        visible={!!selectedDiagnosis}
+        diagnosis={selectedDiagnosis}
+        onClose={() => setSelectedDiagnosis(null)}
+      />
+    </View>
+  );
+
 };
 
   const DiagnosisModal = ({ visible, diagnosis, onClose }) => {
