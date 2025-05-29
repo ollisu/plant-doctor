@@ -1,8 +1,9 @@
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View, Pressable, TouchableOpacity, Alert } from 'react-native';
 import { db } from '../firebaseConfig';
 import { useRouter } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const DiagnosesScreen = () => {
     const [diagnoses, setDiagnoses] = useState([]);
@@ -14,7 +15,7 @@ const DiagnosesScreen = () => {
         const fetchDiagnoses = async () => {
             try {
                 const querySnapshot = await getDocs(collection(db, 'diagnoses'));
-                const data = querySnapshot.docs.map(doc => doc.data());
+                const data = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
                 setDiagnoses(data);
             } catch (error) {
                 console.error('Error fetching diagnoses:', error);
@@ -25,6 +26,29 @@ const DiagnosesScreen = () => {
 
         fetchDiagnoses();
     }, []);
+
+    const handleDelete = (id, diagnosisLabel) => {
+        Alert.alert(
+        'Confirm Delete',
+        `Are you sure you want to delete "${diagnosisLabel}"?`,
+        [
+            { text: 'Cancel', style: 'cancel' },
+            {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+                try {
+                await deleteDoc(doc(db, 'diagnoses', id));
+                setDiagnoses(prev => prev.filter(item => item.id !== id));
+                } catch (error) {
+                console.error('Error deleting diagnosis:', error);
+                Alert.alert('Delete failed', 'Could not delete diagnosis.');
+                }
+            }
+            }
+        ]
+        );
+    };
 
 
     const filtered = diagnoses.filter(d => d.diagnosis.toLowerCase().includes(filter.toLowerCase()));
@@ -45,22 +69,28 @@ const DiagnosesScreen = () => {
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                     <Pressable
-                    style={styles.item}
-                    onPress={() =>
-                        router.push({
-                        pathname: '/map',
-                        params: {
-                            diagnosisLocation: JSON.stringify(item.location),
-                        },
-                        })
-                    }
-                    >
-                    <Text>{`Diagnosis: ${item.diagnosis}`}</Text>
-                    <Text>{`Result confidence: ${(item.confidence * 100).toFixed(2)}%`}</Text>
-                    <Text>{`Note: ${item.note}`}</Text>
-                    <Text style={{ color: '#4caf50' }}>
-                        {item.createdAt?.toDate().toLocaleString()}
-                    </Text>
+                        style={styles.item}
+                        onPress={() =>
+                            router.push({
+                            pathname: '/map',
+                            params: {
+                                diagnosisLocation: JSON.stringify(item.location),
+                            },
+                            })
+                        }
+                        >
+                        <Text>{`Diagnosis: ${item.diagnosis}`}</Text>
+                        <Text>{`Result confidence: ${(item.confidence * 100).toFixed(2)}%`}</Text>
+                        <Text>{`Note: ${item.note}`}</Text>
+                        <Text style={{ color: '#4caf50' }}>
+                            {item.createdAt?.toDate().toLocaleString()}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => handleDelete(item.id, item.diagnosis)}
+                            style={styles.trashIcon}
+                            >
+                                <MaterialIcons name="delete" size={24} color="red" />
+                        </TouchableOpacity>
                     </Pressable>
                 )}
             />)}
