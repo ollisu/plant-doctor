@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
+import { signOut } from 'firebase/auth';
 import { useEffect } from 'react';
 import { Animated, Button, StyleSheet, Text, useAnimatedValue, View, } from "react-native";
-import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 
 
@@ -34,6 +34,8 @@ const HomeScreen = () => {
       <Button title="Diagnose a Plant" onPress={() => router.push('/diagnose')} color="#66bb6a" />
       <View style={{ margin: 10 }} />
       <Button title="Go to Diagnoses List" onPress={() => router.push('/diagnoses')} color="#4caf50" />
+      <View style={{ margin: 10 }} />
+      <Button title="Go to Map and view diagnoses" onPress={() => router.push('/map')} color="#4caf50" />
       <View style={{ margin: 30 }} />
       <Button title="Logout" onPress={handleLogout} color="#4caf50" />
     </Animated.View>
