@@ -1,12 +1,14 @@
 import { collection, getDocs } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 import { db } from '../firebaseConfig';
+import { useRouter } from 'expo-router';
 
 const DiagnosesScreen = () => {
     const [diagnoses, setDiagnoses] = useState([]);
     const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchDiagnoses = async () => {
@@ -42,12 +44,24 @@ const DiagnosesScreen = () => {
                 data={filtered}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
-                    <View style={styles.item}>
-                        <Text>{`Diagnosis: ${item.diagnosis}`}</Text>
-                        <Text>{`Result confidence: ${(item.confidence * 100).toFixed(2) + '%'}`}</Text>
-                        <Text>{`Note: ${item.note}`}</Text>
-                        <Text style={{ color: '#4caf50' }}>{item.createdAt?.toDate().toLocaleString()}</Text>
-                    </View>
+                    <Pressable
+                    style={styles.item}
+                    onPress={() =>
+                        router.push({
+                        pathname: '/map',
+                        params: {
+                            diagnosisLocation: JSON.stringify(item.location),
+                        },
+                        })
+                    }
+                    >
+                    <Text>{`Diagnosis: ${item.diagnosis}`}</Text>
+                    <Text>{`Result confidence: ${(item.confidence * 100).toFixed(2)}%`}</Text>
+                    <Text>{`Note: ${item.note}`}</Text>
+                    <Text style={{ color: '#4caf50' }}>
+                        {item.createdAt?.toDate().toLocaleString()}
+                    </Text>
+                    </Pressable>
                 )}
             />)}
 

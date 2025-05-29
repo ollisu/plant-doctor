@@ -4,7 +4,7 @@ import { ActivityIndicator, Button, StyleSheet, View, Alert, Text, Modal, Pressa
 import MapView, {Marker, Callout} from 'react-native-maps';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
-import { useRoute } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
 
 
 const MapScreen = () => {
@@ -12,7 +12,7 @@ const MapScreen = () => {
     const [loading, setLoading] = useState(true);
     const [diagnoses, setDiagnoses] = useState([]);
     const [selectedDiagnosis, setSelectedDiagnosis] = useState(null);
-    const route = useRoute();
+    const { diagnosisLocation } = useLocalSearchParams();
 
     const DEFAULT_REGION = {
         latitude: 61.4978,       // Tampere, Finland
@@ -64,15 +64,26 @@ const MapScreen = () => {
 
     // To view a single diagnosis location passed from another screen
     useEffect(() => {
-      if(route.params?.diagnosisLocation){
-        const { latitude, longitude } = route.params.diagnosisLocation;
-        setRegion({
-          latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }); 
-      }}, [route.params?.diagnosisLocation]);
+      if (diagnosisLocation) {
+        try {
+          const location = JSON.parse(diagnosisLocation);
+          if (location?.latitude && location?.longitude) {
+            setRegion({
+              latitude: location.latitude,
+              longitude: location.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            });
+            return;
+          }
+        } catch (error) {
+          console.warn('Failed to parse diagnosisLocation:', error);
+        }
+      }
+
+      // Default region fallback
+      setRegion(DEFAULT_REGION);
+    }, [diagnosisLocation]);
 
       return (
         <View style={styles.container}>
