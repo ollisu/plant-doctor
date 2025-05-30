@@ -1,11 +1,11 @@
-import * as imagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import * as Location from 'expo-location';
-import { useState } from 'react';
-import { Button, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View, Alert, ActivityIndicator, Text, Modal } from 'react-native';
-import axios from 'axios'
+import axios from 'axios';
 import { Buffer } from 'buffer';
-import { collection, addDoc, serverTimestamp  } from 'firebase/firestore';
+import * as FileSystem from 'expo-file-system';
+import * as imagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Button, Image, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { db } from '../firebaseConfig';
 
 
@@ -41,7 +41,7 @@ const DiagnosesScreen = () => {
     const diagnose = async () => {
 
         const HUGGINGFACE_MODEL = process.env.EXPO_PUBLIC_HUGGINGFACE_MODEL
-        const HUGGINGFACE_API_TOKEN = process.env.EXPO_PUBLIC_HUGGINFACE_TOKEN
+        const HUGGINGFACE_API_TOKEN = process.env.EXPO_PUBLIC_HUGGINGFACE_TOKEN
         try{
             setLoading(true);
             const result = {}
